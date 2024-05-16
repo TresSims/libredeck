@@ -5,7 +5,6 @@ import {
   external,
   pluginHotRestart,
 } from "./vite.base.config.mjs";
-import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -24,7 +23,7 @@ export default defineConfig((env) => {
         external,
       },
     },
-    plugins: [pluginHotRestart("restart"), react()],
+    plugins: [pluginHotRestart("restart")],
     define,
     resolve: {
       // Load the Node.js entry.
