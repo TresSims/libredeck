@@ -1,7 +1,7 @@
+import { getDevices } from "../api/devices.js";
+
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
-
-import { getDevices } from "./devices/devices.js";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
