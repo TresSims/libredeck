@@ -8,6 +8,6 @@ module.exports = [
     rules: {
       "prettier/prettier": "error",
     },
-    ignores: ["*.config.*", ".vite/*/**"],
+    ignores: ["*.conf*", ".vite/*/**"],
   },
 ];
