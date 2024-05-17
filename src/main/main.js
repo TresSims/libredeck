@@ -1,4 +1,4 @@
-import { getDevices } from "../api/devices.js";
+import { getDevices, loadProgram } from "../api/devices.js";
 import { setupTray } from "./tray.js";
 
 const { app, BrowserWindow, ipcMain } = require("electron");
@@ -71,5 +71,8 @@ app.on("window-all-closed", () => {});
 const handleGetDevices = async () => {
   console.log("Handling devices from main thread");
   const devices = await getDevices();
+  devices.on("connect", () => {
+    loadProgram(devices, "../../examples/simple");
+  });
   return devices.type;
 };
