@@ -6,7 +6,7 @@ export const setupTray = () => {
   let tray;
 
   const icon = nativeImage.createFromPath(
-    path.join(__dirname, "../../resources/icon_16x.png"),
+    path.join(__dirname, "../../resources/ui/icon_16x.png"),
   );
   tray = new Tray(icon);
 
