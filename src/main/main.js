@@ -69,10 +69,10 @@ app.on("window-all-closed", () => {});
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 const handleGetDevices = async () => {
-  console.log("Handling devices from main thread");
-  const devices = await getDevices();
-  devices.on("connect", () => {
-    loadProgram(devices, "../../examples/simple");
-  });
-  return devices.type;
+  try {
+    const devices = await getDevices();
+    return devices[0].type;
+  } catch (e) {
+    console.log(e);
+  }
 };
