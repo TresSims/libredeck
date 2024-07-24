@@ -1,7 +1,7 @@
-import { getDevices, loadProgram } from "../api/devices.js";
+import { setupIPC as setupDeviceIPC, findDevices } from "../api/devices.js";
 import { setupTray } from "./tray.js";
 
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow } = require("electron");
 const path = require("node:path");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -45,7 +45,10 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // set up IPC communication
-  ipcMain.handle("getDevices", handleGetDevices);
+  setupDeviceIPC();
+
+  // Get Initial List of Devices
+  findDevices();
 
   // Set up system tray access
   setupTray();
@@ -68,11 +71,3 @@ app.on("window-all-closed", () => {});
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-const handleGetDevices = async () => {
-  try {
-    const devices = await getDevices();
-    return devices[0].type;
-  } catch (e) {
-    console.log(e);
-  }
-};
