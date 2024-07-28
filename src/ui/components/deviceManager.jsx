@@ -72,9 +72,20 @@ export default function DeviceManager() {
 				</div>
 				<button
 					onClick={() => setFetchingDevices(true)}
-					className="p-4 h-16 flex items-center gap-2 flex-row bg-gutter">
+					className={
+						clsx(
+							"p-4 h-16 flex items-center gap-2 flex-row bg-gutter",
+							"hover:bg-subdued",
+							"active:bg-storm",
+							"group"
+						)}>
 					<ArrowPathIcon
-						className={clsx("size-10", fetchingDevices && "animate-spin")}
+						className={
+							clsx(
+								"size-10",
+								"group-hover:text-blue",
+								fetchingDevices && "animate-spin text-cyan"
+							)}
 					/>
 					Refresh
 				</button>
