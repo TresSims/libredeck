@@ -4,14 +4,15 @@ const { ipcMain } = require("electron");
 // filter modules in loupedeck to a list of device types
 const deviceTypes = Object.values(ALL_DEVICES).filter((d) => d.productId);
 export var devices = [];
-export var device = null;
+export var device = -1;
 
 // Set Up IPC Hooks
 export const setupIPC = () => {
+  ipcMain.handle("findDevices", findDevices);
   ipcMain.handle("getDevices", getDevices);
-  ipcMain.on("connect", (event, index) => connect(index));
-  ipcMain.on("loadProgram", loadProgram);
-  // ipcMain.handle("getDevice", (event, device) => getDevice(device));
+  ipcMain.handle("setDevice", (event, index) => setDevice(index));
+  ipcMain.handle("connect", connect);
+  ipcMain.handle("loadProgram", (event, program) => loadProgram(program));
 };
 
 // Get all connected devices
@@ -35,28 +36,42 @@ export const findDevices = async () => {
         new types[productId]({ ...args, autoConnect: false }),
     );
 
-  console.log(devices);
-  return true;
+  if (device < 0 || device > devices.length) {
+    setDevice(0);
+  }
+  return { result: "Success" };
 };
 
 // Get name and port of each device
 export const getDevices = () => {
   var device_info_list = devices.map((device) => getDeviceInfo(device));
-  console.log(device_info_list);
-  return device_info_list;
-};
-
-// Get inforamtion about a specific device by index
-export const getDeviceInfo = (d) => {
-  var device_info = [d.type, d.path];
-  console.log(device_info);
+  var device_info = { current_device: device, devices: device_info_list };
   return device_info;
 };
 
+// Get inforamtion about a specific device by index
+const getDeviceInfo = (d) => {
+  var device_info = [d.type, d.path];
+  return device_info;
+};
+
+// Set device
+export const setDevice = (d) => {
+  if (d < devices.length) {
+    device = d;
+    return { result: "Success" };
+  } else {
+    return { result: "No device " + d };
+  }
+};
+
 // connect to the device and load a default program
-export const connect = async (index) => {
-  console.log("Attempting to connect to device");
+export const connect = async () => {
   const retries = 3;
+
+  if (device < 0 || device > devices.length) {
+    return { result: "No Device" + device };
+  }
 
   let new_connection_device = devices[index];
   let success = false;
@@ -75,7 +90,10 @@ export const connect = async (index) => {
       });
   }
 
-  loadProgram("../../examples/simple/", index);
+  // Load Simple Program
+  await loadProgram("../../examples/simple/", index);
+
+  return { result: "Success" };
 };
 
 // Load a program on a device
@@ -88,5 +106,3 @@ export const loadProgram = async (program, index) => {
     p.setup(new_program_device);
   });
 };
-
-export const disconnect = async () => {};
