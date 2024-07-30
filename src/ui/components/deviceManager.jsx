@@ -60,7 +60,7 @@ export default function DeviceManager() {
 				<div className="flex flex-col gap-2 overflow-y-auto" >
 					{devices.map((device, i) => {
 						return (
-							<MenuItem onClick={() => { setCurrentDevice(i) }}>
+							<MenuItem key={i} onClick={() => { setCurrentDevice(i) }}>
 								<div className="h-16">
 									<DeviceOption deviceName={device[0]} devicePort={device[1]} >
 										{i == currentDevice && <CheckIcon className="text-green" />}
