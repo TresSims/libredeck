@@ -11,10 +11,12 @@ import DeviceOption from './deviceOption'
 
 export default function DeviceManager() {
 	const queryClient = useQueryClient()
-
-	const devicesQuery = useQuery({ queryKey: ['devices'], queryFn: window.deviceAPI.getDevices })
 	const [fetchingDevices, setFetchingDevices] = useState(false);
 
+	// Fetch initial devices
+	const devicesQuery = useQuery({ queryKey: ['devices'], queryFn: window.deviceAPI.listDevices })
+
+	// Handle Searching for devices and updating list
 	const updateDeviceList = async () => {
 		setTimeout(() => setFetchingDevices(false), 500)
 		return await window.deviceAPI.findDevices();
@@ -22,6 +24,13 @@ export default function DeviceManager() {
 
 	const updateDeviceListMutation = useMutation({
 		mutationFn: updateDeviceList,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["devices"] })
+		}
+	})
+
+	const setCurrentDeviceMutation = useMutation({
+		mutationFn: async () => await window.deviceAPI.setDevice,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["devices"] })
 		}
@@ -67,7 +76,7 @@ export default function DeviceManager() {
 					<div className="flex flex-col gap-2 overflow-y-auto" >
 						{devicesQuery.data.devices.map((device, i) => {
 							return (
-								<MenuItem key={i} onClick={() => { setCurrentDevice(i) }}>
+								<MenuItem key={i} onClick={() => { setCurrentDeviceMutation.mutate(i) }}>
 									<div className="h-16">
 										<DeviceOption deviceName={device[0]} devicePort={device[1]} >
 											{i == devicesQuery.data.current_device && <CheckIcon className="text-green" />}

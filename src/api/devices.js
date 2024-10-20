@@ -9,10 +9,11 @@ export var device = -1;
 // Set Up IPC Hooks
 export const setupIPC = () => {
   ipcMain.handle("findDevices", findDevices);
-  ipcMain.handle("getDevices", getDevices);
+  ipcMain.handle("listDevices", listDevices);
   ipcMain.handle("setDevice", (event, index) => setDevice(index));
   ipcMain.handle("connect", connect);
   ipcMain.handle("loadProgram", (event, program) => loadProgram(program));
+  ipcMain.handle("disconnect", disconnect);
 };
 
 // Get all connected devices
@@ -43,7 +44,7 @@ export const findDevices = async () => {
 };
 
 // Get name and port of each device
-export const getDevices = () => {
+export const listDevices = () => {
   var device_info_list = devices.map((device) => getDeviceInfo(device));
   var device_info = { current_device: device, devices: device_info_list };
   return device_info;
@@ -73,7 +74,7 @@ export const connect = async () => {
     return { result: "No Device" + device };
   }
 
-  let new_connection_device = devices[index];
+  let new_connection_device = devices[device];
   let success = false;
   let tries = 0;
   while (!success && tries <= retries) {
@@ -91,9 +92,12 @@ export const connect = async () => {
   }
 
   // Load Simple Program
-  await loadProgram("../../examples/simple/", index);
-
-  return { result: "Success" };
+  if (success) {
+    await loadProgram("../../examples/simple/", device);
+    return { result: "Success" };
+  } else {
+    return { result: "Could not connect to device " + device };
+  }
 };
 
 // Load a program on a device
@@ -105,4 +109,9 @@ export const loadProgram = async (program, index) => {
   import(program + "/index.mjs").then((p) => {
     p.setup(new_program_device);
   });
+};
+
+export const disconnect = async () => {
+  await loadProgram("../../examples/empty/", device);
+  devices[device].close();
 };
